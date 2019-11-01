@@ -204,6 +204,11 @@ namespace AtsPlugin.Core
             }
         }
 
+        // 同名大丈夫？？
+        public static int userPower = 0;
+        public static int userBrake = 0;
+        public static int userReverser = 0;
+
         /// <summary>
         /// Called when this plug-in is loaded
         /// </summary>
@@ -239,7 +244,9 @@ namespace AtsPlugin.Core
         [DllExport(CallingConvention.StdCall)]
         public static void SetVehicleSpec(AtsVehicleSpec vehicleSpec)
         {
-
+            // 初回はB7になってSetBrakeが呼ばれる。
+            // リロード時はEBになってSetBrakeは呼ばれないのでここでEBにする必要あり。
+            userBrake = vehicleSpec.BrakeNotches + 1; //常用最大ブレーキ数+1
         }
 
         /// <summary>
@@ -265,7 +272,13 @@ namespace AtsPlugin.Core
             var panelArray = new AtsIoArray(panel);
             var soundArray = new AtsIoArray(sound);
 
-            return new AtsHandles() { Power = 0, Brake = 0, ConstantSpeed = AtsCscInstruction.Continue, Reverser = 0 };
+            return new AtsHandles()
+            {
+                Power = userPower,
+                Brake = userBrake,
+                ConstantSpeed = AtsCscInstruction.Continue,
+                Reverser = userReverser
+            };
         }
 
         /// <summary>
@@ -275,7 +288,7 @@ namespace AtsPlugin.Core
         [DllExport(CallingConvention.StdCall)]
         public static void SetPower(int handlePosition)
         {
-
+            userPower = handlePosition;
         }
 
         /// <summary>
@@ -285,7 +298,7 @@ namespace AtsPlugin.Core
         [DllExport(CallingConvention.StdCall)]
         public static void SetBrake(int handlePosition)
         {
-
+            userBrake = handlePosition;
         }
 
         /// <summary>
@@ -295,7 +308,7 @@ namespace AtsPlugin.Core
         [DllExport(CallingConvention.StdCall)]
         public static void SetReverser(int handlePosition)
         {
-
+            userReverser = handlePosition;
         }
 
         /// <summary>
